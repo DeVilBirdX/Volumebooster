@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Volume Booster</title>
+    <title>Khuyếch Đại Âm Thanh</title>
 </head>
 <body>
     <input type="file" id="fileInput" accept="audio/*">
     <audio id="audio" controls></audio>
-    <button id="boostButton">Boost Volume to 1000%</button>
-    <button id="notifyAndPlayButton">Notify and Play in Background</button>
+    <button id="boostButton">Tăng Âm Lượng lên 1000%</button>
+    <button id="notifyAndPlayButton">Phát Nền</button>
 
     <script>
         const audioElement = document.getElementById('audio');
@@ -17,19 +17,19 @@
         const boostButton = document.getElementById('boostButton');
         const notifyAndPlayButton = document.getElementById('notifyAndPlayButton');
 
-        // Lắng nghe sự kiện thay đổi tệp
+        
         fileInput.addEventListener('change', (event) => {
             const file = event.target.files[0];
             const fileURL = URL.createObjectURL(file);
             audioElement.src = fileURL;
         });
 
-        // Lắng nghe sự kiện nhấp vào nút boost
+        
         boostButton.addEventListener('click', () => {
             boostVolume();
         });
 
-        // Lắng nghe sự kiện nhấp vào nút thông báo và phát ngầm
+        
         notifyAndPlayButton.addEventListener('click', () => {
             boostVolume();
             showNotification();
@@ -47,13 +47,13 @@
 
             audioElement.play();
 
-            // Tự động phát âm thanh ngầm
+            
             audioElement.addEventListener('ended', () => {
                 audioElement.play();
             });
         }
 
-        // Hàm hiển thị thông báo
+        
         function showNotification() {
             if (Notification.permission === "default" || Notification.permission === "denied") {
                 Notification.requestPermission().then(permission => {
@@ -81,7 +81,7 @@
             }
         }
 
-        // Xử lý các hành động thông báo trong service worker
+        
         navigator.serviceWorker.addEventListener('message', event => {
             if (event.data.action === 'pause') {
                 audioElement.pause();
