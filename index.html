@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volume Booster</title>
+</head>
+<body>
+    <input type="file" id="fileInput" accept="audio/*">
+    <audio id="audio" controls></audio>
+    <button id="boostButton">Boost Volume to 1000%</button>
+    <button id="notifyAndPlayButton">Notify and Play in Background</button>
+
+    <script>
+        const audioElement = document.getElementById('audio');
+        const fileInput = document.getElementById('fileInput');
+        const boostButton = document.getElementById('boostButton');
+        const notifyAndPlayButton = document.getElementById('notifyAndPlayButton');
+
+        // Lắng nghe sự kiện thay đổi tệp
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            const fileURL = URL.createObjectURL(file);
+            audioElement.src = fileURL;
+        });
+
+        // Lắng nghe sự kiện nhấp vào nút boost
+        boostButton.addEventListener('click', () => {
+            boostVolume();
+        });
+
+        // Lắng nghe sự kiện nhấp vào nút thông báo và phát ngầm
+        notifyAndPlayButton.addEventListener('click', () => {
+            boostVolume();
+            showNotification();
+        });
+
+        function boostVolume() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const source = audioContext.createMediaElementSource(audioElement);
+            const gainNode = audioContext.createGain();
+
+            gainNode.gain.value = 10; // 1000%
+
+            source.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            audioElement.play();
+
+            // Tự động phát âm thanh ngầm
+            audioElement.addEventListener('ended', () => {
+                audioElement.play();
+            });
+        }
+
+        // Hàm hiển thị thông báo
+        function showNotification() {
+            if (Notification.permission === "default" || Notification.permission === "denied") {
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") {
+                        createNotification();
+                    }
+                });
+            } else {
+                createNotification();
+            }
+        }
+
+        function createNotification() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js').then(registration => {
+                    registration.showNotification("Volume Booster", {
+                        body: "Audio is boosted to 1000%",
+                        icon: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPGxEz--geVggxYSUYeiTTwRx_6_r6eIOman3vSl3Mhw&s",
+                        actions: [
+                            { action: 'pause', title: 'Pause' },
+                            { action: 'play', title: 'Play' }
+                        ]
+                    });
+                });
+            }
+        }
+
+        // Xử lý các hành động thông báo trong service worker
+        navigator.serviceWorker.addEventListener('message', event => {
+            if (event.data.action === 'pause') {
+                audioElement.pause();
+            } else if (event.data.action === 'play') {
+                audioElement.play();
+            }
+        });
+    </script>
+</body>
+</html>
